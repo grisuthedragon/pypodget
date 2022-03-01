@@ -27,6 +27,7 @@ import tqdm
 import configparser
 from string import Template
 import argparse
+import eyed3
 
 
 # Default Settings
@@ -74,6 +75,7 @@ def podcast(url, folder = "./", template_name = "$year-$month-$day - $title.$ext
     except Exception as err:
         print (err)
         return
+    feed_title = feed.findall('channel/title')[0].text
 
     for feed_item in feed.iter("item"):
         title = feed_item.find("title").text
@@ -90,24 +92,41 @@ def podcast(url, folder = "./", template_name = "$year-$month-$day - $title.$ext
                                      hour = "{:02}".format(date_input.hour),
                                      title = title_unicode,
                                      ext = ext)
-        filename = folder + os.pathsep + filename
+        filename = folder + os.sep + filename
         if not os.path.isfile(filename):
             try:
                 download_file(url = data_url, filename = filename, verbose = verbose)
+                audiofile = eyed3.load(filename)
+                if not audiofile.tag.artist:
+                    audiofile.tag.artist = feed_title
+                if not audiofile.tag.title:
+                    audiofile.tag.title  = title
+                audiofile.tag.save()
             except Exception as err:
+                print("Something wrong... in the neighbor hood.")
                 print (err)
                 if os.path.isfile(filename):
                     os.remove(filename)
-
-
+            except KeyboardInterrupt:
+                print('Interrupted')
+                if os.path.isfile(filename):
+                    os.remove(filename)
+                try:
+                    sys.exit(0)
+                except SystemExit:
+                    os._exit(0)
 
 def main():
 
     # Parse the command line
     parser = argparse.ArgumentParser(description='Download Podcasts from RSS Feeds.')
     parser.add_argument('--config', '-c', nargs = 1, required=True, help = 'Specify the configfile')
+    parser.add_argument('--silent', '-s', action = 'store_true', default = False, help = 'Silent operation')
     parser.add_argument('--version', '-v',  action='version', version='%(prog)s 0.1')
     args = parser.parse_args()
+
+
+    verbose = not args.silent
 
     configfile = args.config[0]
 
@@ -115,29 +134,29 @@ def main():
         print ('Failed to open configfile {:s}'.format(configfile))
         sys.exit(-1)
 
+
+
     # Read the configfile
     config = configparser.ConfigParser()
     config.read(configfile)
 
-    if "settings" in config.sections():
-        print ("found settings")
-        verbose = config["settings"].getboolean('verbose', fallback = True)
 
     for pod in config.sections():
         if pod == "settings":
             continue
 
-        print ("Download {:s}...".format(pod))
         try:
             url = config[pod]["url"]
             directory = config[pod]["directory"]
         except Exception as err:
             print("Mandatory key missing")
             print(err)
+
         if "filename" in config[pod]:
             filename_template = config[pod]["filename"]
         else:
             filename_template = DEFAULT_FILENAME_TEMPLATE
+
         try:
             os.makedirs(directory, exist_ok = True)
             podcast(url, directory, filename_template, verbose)

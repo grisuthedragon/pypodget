@@ -1,0 +1,7 @@
+[Radio Tux]
+url = http://radiotux.de/podcast/rss/radiotux-all.xml
+directory = ./Radio Tux/
+filename = $year-$month-$day - $title.$ext
+
+
+
