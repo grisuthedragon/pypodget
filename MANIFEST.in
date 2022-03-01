@@ -1,1 +1,3 @@
 include pods.ini.example
+include LICENSE.txt
+
