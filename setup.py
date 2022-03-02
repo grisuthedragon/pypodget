@@ -8,6 +8,7 @@ setup(
    author='Martin Koehler',
    author_email='grisuthedragon@users.noreply.github.com',
    scripts=['bin/pypodget'],
+   packages=['pypodget'],
    url='http://github.com/grisuthedraong/pypodget',
    license=('LICENSE.txt',),
    description='A small tool to download podcasts from RSS feeds.',

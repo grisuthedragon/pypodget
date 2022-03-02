@@ -29,6 +29,7 @@ from string import Template
 import argparse
 import eyed3
 
+from pypodget import pod_download, set_verbose
 
 # Default Settings
 DEFAULT_FILENAME_TEMPLATE = "$year-$month-$day - $title.$ext"
@@ -95,7 +96,7 @@ def podcast(url, folder = "./", template_name = "$year-$month-$day - $title.$ext
         filename = folder + os.sep + filename
         if not os.path.isfile(filename):
             try:
-                download_file(url = data_url, filename = filename, verbose = verbose)
+                pod_download(url = data_url, filename = filename)
                 audiofile = eyed3.load(filename)
                 if not audiofile.tag.artist:
                     audiofile.tag.artist = feed_title
@@ -125,8 +126,9 @@ def main():
     parser.add_argument('--version', '-v',  action='version', version='%(prog)s 0.1')
     args = parser.parse_args()
 
-
+    global verbose
     verbose = not args.silent
+    set_verbose(verbose)
 
     configfile = args.config[0]
 
