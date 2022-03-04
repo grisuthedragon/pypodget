@@ -26,30 +26,39 @@ import tqdm
 from .globals import verbose
 
 # Download a file from the Web
-def pod_download(url, filename=False):
-    if not filename:
-        local_filename = os.path.join(".",url.split('/')[-1])
-    else:
-        local_filename = filename
+def pod_download(url, filename):
+    """
+        Download a file from an URL.
 
+        Parameters:
+            url (str):        URL to download
+            filename (str):   Filename to store the result.
+
+
+    """
     r = requests.get(url, stream=verbose, allow_redirects=True)
 
-    if verbose():
-        file_size = int(r.headers['Content-Length'])
-        chunk = 1
-        chunk_size=1024
-        num_bars = int(file_size / chunk_size)
+    try:
+        if verbose():
+            file_size = int(r.headers['Content-Length'])
+            chunk = 1
+            chunk_size=1024
+            num_bars = int(file_size / chunk_size)
 
-        with open(local_filename, 'wb') as fp:
-            for chunk in tqdm.tqdm(
-                                    r.iter_content(chunk_size=chunk_size)
-                                    , total= num_bars
-                                    , unit = 'KB'
-                                    , desc = local_filename
-                                    , leave = True # progressbar stays
-                                ):
-                fp.write(chunk)
-    else:
-        open(local_filename, 'wb').write(r.content)
+            with open(filename, 'wb') as fp:
+                for chunk in tqdm.tqdm(
+                                        r.iter_content(chunk_size=chunk_size)
+                                        , total= num_bars
+                                        , unit = 'KB'
+                                        , desc = filename
+                                        , leave = True # progressbar stays
+                                    ):
+                    fp.write(chunk)
+        else:
+            open(filename, 'wb').write(r.content)
+    except KeyboardInterrupt as ki :
+        if os.path.exists(filename):
+            os.remove(filename)
+        raise ki
     return
 

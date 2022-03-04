@@ -29,93 +29,11 @@ from string import Template
 import argparse
 import eyed3
 
-from pypodget import pod_download, set_verbose
+from pypodget import pod_download, set_verbose, Podcast
 
 # Default Settings
 DEFAULT_FILENAME_TEMPLATE = "$year-$month-$day - $title.$ext"
 
-
-# Download a file from the Web
-def download_file(url, filename=False, verbose = True):
-    if not filename:
-        local_filename = os.path.join(".",url.split('/')[-1])
-    else:
-        local_filename = filename
-
-    r = requests.get(url, stream=verbose, allow_redirects=True)
-
-    if verbose:
-        file_size = int(r.headers['Content-Length'])
-        chunk = 1
-        chunk_size=1024
-        num_bars = int(file_size / chunk_size)
-
-        with open(local_filename, 'wb') as fp:
-            for chunk in tqdm.tqdm(
-                                    r.iter_content(chunk_size=chunk_size)
-                                    , total= num_bars
-                                    , unit = 'KB'
-                                    , desc = local_filename
-                                    , leave = True # progressbar stays
-                                ):
-                fp.write(chunk)
-    else:
-        open(local_filename, 'wb').write(r.content)
-    return
-
-
-def podcast(url, folder = "./", template_name = "$year-$month-$day - $title.$ext", verbose = True):
-    try:
-        r = requests.get(url)
-    except:
-        print("Failed to obtain podcast from {}".format(url))
-        return
-
-    try:
-        feed = ElementTree.fromstring(r.content)
-    except Exception as err:
-        print (err)
-        return
-    feed_title = feed.findall('channel/title')[0].text
-
-    for feed_item in feed.iter("item"):
-        title = feed_item.find("title").text
-        data_url = feed_item.find("enclosure").attrib["url"]
-        date_input = datetime.strptime(feed_item.find("pubDate").text, '%a, %d %b %Y %H:%M:%S %z')
-        title_unicode = unicodedata.normalize('NFKD', title).encode('ascii','ignore').decode("utf-8").replace('\'','').replace('!','')
-
-        tmp_fn = Template(template_name)
-        ext = (data_url.split('?')[0]).split('.')[-1]
-
-        filename = tmp_fn.substitute(year = "{:04}".format(date_input.year), month = "{:02}".format(date_input.month),
-                                     day = "{:02}".format(date_input.day),
-                                     minute = "{:02}".format(date_input.minute),
-                                     hour = "{:02}".format(date_input.hour),
-                                     title = title_unicode,
-                                     ext = ext)
-        filename = folder + os.sep + filename
-        if not os.path.isfile(filename):
-            try:
-                pod_download(url = data_url, filename = filename)
-                audiofile = eyed3.load(filename)
-                if not audiofile.tag.artist:
-                    audiofile.tag.artist = feed_title
-                if not audiofile.tag.title:
-                    audiofile.tag.title  = title
-                audiofile.tag.save()
-            except Exception as err:
-                print("Something wrong... in the neighbor hood.")
-                print (err)
-                if os.path.isfile(filename):
-                    os.remove(filename)
-            except KeyboardInterrupt:
-                print('Interrupted')
-                if os.path.isfile(filename):
-                    os.remove(filename)
-                try:
-                    sys.exit(0)
-                except SystemExit:
-                    os._exit(0)
 
 def main():
 
@@ -160,11 +78,18 @@ def main():
             filename_template = DEFAULT_FILENAME_TEMPLATE
 
         try:
-            os.makedirs(directory, exist_ok = True)
-            podcast(url, directory, filename_template, verbose)
-        except Exception as err:
-            print(err)
+            p =  Podcast(url, pod, directory, filename_template)
+        except:
+            print("Failed to obtain podcast {:s} - {:s}".format(pod, url))
+            continue
 
+        for i in range(0, p.nepisodes):
+            try:
+                p.download(i)
+            except Exception as e:
+                print("Download {:s} - Episode {:d} failed. Continue.".format(pod, i))
+                print(str(e))
+                continue
 
 if __name__ == "__main__":
     main()
