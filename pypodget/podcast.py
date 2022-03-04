@@ -26,6 +26,7 @@ class Episode:
         if not os.path.isfile(self.__local_filename):
             pod_download(self.__url, self.__local_filename)
 
+        eyed3.log.setLevel("ERROR")
         audiofile = eyed3.load(self.__local_filename)
         if not audiofile.tag.artist:
             audiofile.tag.artist = self.__parent.title
