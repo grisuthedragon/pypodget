@@ -37,6 +37,7 @@ def pod_download(url, filename):
 
     """
     r = requests.get(url, stream=verbose, allow_redirects=True)
+    disp_filename = filename.split(os.sep)[-1]
 
     try:
         if verbose():
@@ -50,7 +51,7 @@ def pod_download(url, filename):
                                         r.iter_content(chunk_size=chunk_size)
                                         , total= num_bars
                                         , unit = 'KB'
-                                        , desc = filename
+                                        , desc = disp_filename
                                         , leave = True # progressbar stays
                                     ):
                     fp.write(chunk)
