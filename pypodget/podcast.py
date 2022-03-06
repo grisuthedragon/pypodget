@@ -91,7 +91,9 @@ class Podcast:
             else:
                 epi_url = feed_item.find("enclosure").attrib["url"]
 
-            title_unicode = unicodedata.normalize('NFKD', title).encode('ascii','ignore').decode("utf-8").replace('\'','').replace('!','')
+            #  title_unicode = unicodedata.normalize('NFKD', title).encode('ascii','ignore').decode("utf-8").replace('\'','').replace('!','')
+            title_unicode = title.replace('\'','').replace('\"','').replace('\\','').replace('/', '').replace(':','').replace('!','')
+
             link = feed_item.find('link').text
             ext = (epi_url.split('?')[0]).split('.')[-1]
 
