@@ -106,6 +106,7 @@ class Podcast:
                                      ext = ext,
                                      number = bcounter,
                                      inumber = fcounter,
+                                     nepisodes = self.__nepisodes,
                                      mytitle = self.__mytitle
                                      )
             filename = self.__folder + os.sep + filename
