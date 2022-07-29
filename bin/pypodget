@@ -41,7 +41,7 @@ def main():
     parser = argparse.ArgumentParser(description='Download Podcasts from RSS Feeds.')
     parser.add_argument('--config', '-c', nargs = 1, required=True, help = 'Specify the configfile')
     parser.add_argument('--silent', '-s', action = 'store_true', default = False, help = 'Silent operation')
-    parser.add_argument('--version', '-v',  action='version', version='%(prog)s 0.1')
+    parser.add_argument('--version', '-v',  action='version', version='%(prog)s 0.1.1')
     args = parser.parse_args()
 
     global verbose

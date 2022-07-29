@@ -1,4 +1,4 @@
-pypodget 0.1.0
+pypodget 0.1.1
 ==============
 
 PyPodGet is a GPL-3 licensed tool to download Podcast-RSS feeds from the command

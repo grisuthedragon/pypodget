@@ -1,3 +1,4 @@
 include pods.ini.example
 include LICENSE.txt
+include CHANGELOG.md
 

@@ -4,7 +4,7 @@ from setuptools import setup
 
 setup(
    name='pypodget',
-   version='0.1.0',
+   version='0.1.1',
    author='Martin Koehler',
    author_email='grisuthedragon@users.noreply.github.com',
    scripts=['bin/pypodget'],

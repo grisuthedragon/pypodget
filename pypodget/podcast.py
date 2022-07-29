@@ -109,7 +109,16 @@ class Podcast:
                                      nepisodes = self.__nepisodes,
                                      mytitle = self.__mytitle
                                      )
+            filename = filename.replace('\\','_')
+            filename = filename.replace('/','_')
+            filename = filename.replace(':','_')
+            filename = filename.replace('?','_')
+            filename = filename.replace('*','_')
+
+
+
             filename = self.__folder + os.sep + filename
+
             epi = Episode(self, title, description, pubdate, epi_url, link, filename)
             self.__episodes.append(epi)
             fcounter = fcounter + 1
