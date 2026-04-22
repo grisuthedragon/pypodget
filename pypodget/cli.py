@@ -1,6 +1,4 @@
-#!/usr/bin/env python3
-# coding: utf-8
-# pypodget - a consise tool to download podcasts from rss-feeds
+# pypodget - a concise tool to download podcasts from rss-feeds
 # Copyright (C) 2022 Martin Koehler
 #
 # This program is free software: you can redistribute it and/or modify
@@ -16,50 +14,34 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import requests
-import xml.etree.ElementTree as ElementTree
-import unicodedata
-from datetime import datetime
-import os.path
+import argparse
+import configparser
 import os
 import sys
-import tqdm
-import configparser
-from string import Template
-import argparse
-import eyed3
 
 from pypodget import pod_download, set_verbose, Podcast
 
-# Default Settings
 DEFAULT_FILENAME_TEMPLATE = "$year-$month-$day - $title.$ext"
 
 
 def main():
-
-    # Parse the command line
     parser = argparse.ArgumentParser(description='Download Podcasts from RSS Feeds.')
-    parser.add_argument('--config', '-c', nargs = 1, required=True, help = 'Specify the configfile')
-    parser.add_argument('--silent', '-s', action = 'store_true', default = False, help = 'Silent operation')
-    parser.add_argument('--version', '-v',  action='version', version='%(prog)s 0.1.1')
+    parser.add_argument('--config', '-c', nargs=1, required=True, help='Specify the configfile')
+    parser.add_argument('--silent', '-s', action='store_true', default=False, help='Silent operation')
+    parser.add_argument('--version', '-v', action='version', version='%(prog)s 0.1.1')
     args = parser.parse_args()
 
-    global verbose
     verbose = not args.silent
     set_verbose(verbose)
 
     configfile = args.config[0]
 
     if not os.path.isfile(configfile):
-        print ('Failed to open configfile {:s}'.format(configfile))
+        print('Failed to open configfile {:s}'.format(configfile))
         sys.exit(-1)
 
-
-
-    # Read the configfile
     config = configparser.ConfigParser()
     config.read(configfile)
-
 
     for pod in config.sections():
         if pod == "settings":
@@ -78,7 +60,7 @@ def main():
             filename_template = DEFAULT_FILENAME_TEMPLATE
 
         try:
-            p =  Podcast(url, pod, directory, filename_template)
+            p = Podcast(url, pod, directory, filename_template)
         except:
             print("Failed to obtain podcast {:s} - {:s}".format(pod, url))
             continue
@@ -90,6 +72,3 @@ def main():
                 print("Download {:s} - Episode {:d} failed. Continue.".format(pod, i))
                 print(str(e))
                 continue
-
-if __name__ == "__main__":
-    main()
