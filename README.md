@@ -1,13 +1,13 @@
-pypodget 0.1.1
+pypodget 0.1.2
 ==============
 
 PyPodGet is a GPL-3 licensed tool to download Podcast-RSS feeds from the command
-line. Copyright (C) 2022 by Martin Koehler
+line. Copyright (C) 2022-2026 by Martin Koehler
 
 Installation
 ------------
 
-The tool requires Python 3.7 and the following packages:
+The tool requires Python 3.8 and the following packages:
 
  - requests
  - eye3
@@ -15,7 +15,7 @@ The tool requires Python 3.7 and the following packages:
 
 The tool can be installed either by running
 ```shell
-python3 setup.py
+pip3 install .
 ```
 or by using `pip` and the release tarball
 ```shell
