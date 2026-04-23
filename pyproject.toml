@@ -29,5 +29,3 @@ dependencies = [
 [project.scripts]
 pypodget = "pypodget.cli:main"
 
-[tool.setuptools.package-data]
-"" = ["pods.ini.example"]

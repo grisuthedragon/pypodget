@@ -19,16 +19,21 @@ import configparser
 import os
 import sys
 
-from pypodget import pod_download, set_verbose, Podcast
+from pypodget import set_verbose, Podcast
 
 DEFAULT_FILENAME_TEMPLATE = "$year-$month-$day - $title.$ext"
 
 
 def main():
-    parser = argparse.ArgumentParser(description='Download Podcasts from RSS Feeds.')
-    parser.add_argument('--config', '-c', nargs=1, required=True, help='Specify the configfile')
-    parser.add_argument('--silent', '-s', action='store_true', default=False, help='Silent operation')
-    parser.add_argument('--version', '-v', action='version', version='%(prog)s 0.1.1')
+    parser = argparse.ArgumentParser(description='Download Podcasts from'
+                                     'RSS Feeds.')
+    parser.add_argument('--config', '-c',
+                        nargs=1, required=True, help='Specify the configfile')
+    parser.add_argument('--silent', '-s',
+                        action='store_true', default=False,
+                        help='Silent operation')
+    parser.add_argument('--version', '-v',
+                        action='version', version='%(prog)s 0.1.1')
     args = parser.parse_args()
 
     verbose = not args.silent
@@ -61,7 +66,7 @@ def main():
 
         try:
             p = Podcast(url, pod, directory, filename_template)
-        except:
+        except Exception:
             print("Failed to obtain podcast {:s} - {:s}".format(pod, url))
             continue
 
@@ -69,6 +74,7 @@ def main():
             try:
                 p.download(i)
             except Exception as e:
-                print("Download {:s} - Episode {:d} failed. Continue.".format(pod, i))
+                print("Download {:s} - Episode {:d} failed. Continue."
+                      .format(pod, i))
                 print(str(e))
                 continue

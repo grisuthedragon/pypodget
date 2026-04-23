@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: GPL-3.0-or-later
 # coding: utf-8
+#
 # pypodget - a consise tool to download podcasts from rss-feeds
-# Copyright (C) 2022 Martin Koehler
+# Copyright (C) 2022-2026 Martin Koehler
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -19,11 +21,9 @@
 import requests
 import os.path
 import os
-import sys
 import tqdm
-
-
 from .globals import verbose
+
 
 # Download a file from the Web
 def pod_download(url, filename):
@@ -43,23 +43,20 @@ def pod_download(url, filename):
         if verbose():
             file_size = int(r.headers['Content-Length'])
             chunk = 1
-            chunk_size=1024
+            chunk_size = 1024
             num_bars = int(file_size / chunk_size)
 
             with open(filename, 'wb') as fp:
-                for chunk in tqdm.tqdm(
-                                        r.iter_content(chunk_size=chunk_size)
-                                        , total= num_bars
-                                        , unit = 'KB'
-                                        , desc = disp_filename
-                                        , leave = True # progressbar stays
-                                    ):
+                for chunk in tqdm.tqdm(r.iter_content(chunk_size=chunk_size),
+                                       total=num_bars,
+                                       unit='KB',
+                                       desc=disp_filename,
+                                       leave=True):
                     fp.write(chunk)
         else:
             open(filename, 'wb').write(r.content)
-    except KeyboardInterrupt as ki :
+    except KeyboardInterrupt as ki:
         if os.path.exists(filename):
             os.remove(filename)
         raise ki
     return
-
