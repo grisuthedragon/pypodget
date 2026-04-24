@@ -47,6 +47,8 @@ class Episode:
 
         eyed3.log.setLevel("ERROR")
         audiofile = eyed3.load(self.__local_filename)
+        if audiofile.tag is None:
+            audiofile.initTag()
         if not audiofile.tag.artist:
             audiofile.tag.artist = self.__parent.title
         if not audiofile.tag.title:
@@ -74,24 +76,27 @@ class Podcast:
                             .format(self.__url, r.status_code))
 
         feed = ElementTree.fromstring(r.content)
-        if feed.findall('channel/title') is not None:
-            self.__feed_title = feed.findall('channel/title')[0].text
+        channel_title = feed.findall('channel/title')
+        if channel_title:
+            self.__feed_title = channel_title[0].text
         else:
             self.__feed_title = None
 
-        if feed.findall('channel/description') is not None:
-            txt = feed.findall('channel/description')[0].text
-            self.__feed_description = txt
+        channel_desc = feed.findall('channel/description')
+        if channel_desc:
+            self.__feed_description = channel_desc[0].text
         else:
             self.__feed_description = None
 
-        if feed.findall('channel/link') is not None:
-            self.__feed_link = feed.findall('channel/link')[0].text
+        channel_link = feed.findall('channel/link')
+        if channel_link:
+            self.__feed_link = channel_link[0].text
         else:
             self.__feed_link = None
 
-        if feed.findall('channel/image/url') is not None:
-            self.__feed_image = feed.findall('channel/image/url')[-1].text
+        channel_image = feed.findall('channel/image/url')
+        if channel_image:
+            self.__feed_image = channel_image[-1].text
         else:
             self.__feed_image = None
 
@@ -102,8 +107,9 @@ class Podcast:
 
         for feed_item in feed.iter("item"):
             title = feed_item.find("title").text
-            if feed_item.find('description'):
-                description = feed_item.find('description').text
+            desc_elem = feed_item.find('description')
+            if desc_elem is not None and desc_elem.text is not None:
+                description = desc_elem.text
             else:
                 description = ""
 
@@ -112,8 +118,10 @@ class Podcast:
 
             if feed_item.find("enclosure") is None:
                 epi_url = None
+                ext = ""
             else:
                 epi_url = feed_item.find("enclosure").attrib["url"]
+                ext = (epi_url.split('?')[0]).split('.')[-1]
 
             title_unicode = title.replace('\'', '').replace('\"', '')
             title_unicode = title_unicode.replace('\\', '')
@@ -121,8 +129,8 @@ class Podcast:
             title_unicode = title_unicode.replace(':', '')
             title_unicode = title_unicode.replace('!', '')
 
-            link = feed_item.find('link').text
-            ext = (epi_url.split('?')[0]).split('.')[-1]
+            link_elem = feed_item.find('link')
+            link = link_elem.text if link_elem is not None else ""
 
             filename = self.__filename_template_instance.substitute(
                     year="{:04}".format(pubdate.year),
@@ -142,6 +150,9 @@ class Podcast:
             filename = filename.replace(':', '_')
             filename = filename.replace('?', '_')
             filename = filename.replace('*', '_')
+            filename = filename.replace('>', '_')
+            filename = filename.replace('<', '_')
+            filename = filename.replace('|', '_')
 
             filename = self.__folder + os.sep + filename
 

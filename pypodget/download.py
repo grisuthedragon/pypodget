@@ -36,25 +36,29 @@ def pod_download(url, filename):
 
 
     """
-    r = requests.get(url, stream=verbose, allow_redirects=True)
+    r = requests.get(url, stream=verbose(), allow_redirects=True)
     disp_filename = filename.split(os.sep)[-1]
 
     try:
         if verbose():
-            file_size = int(r.headers['Content-Length'])
-            chunk = 1
-            chunk_size = 1024
-            num_bars = int(file_size / chunk_size)
+            content_length = r.headers.get('Content-Length')
+            if content_length:
+                file_size = int(content_length)
+                chunk_size = 1024
+                num_bars = int(file_size / chunk_size)
+            else:
+                num_bars = None
 
             with open(filename, 'wb') as fp:
-                for chunk in tqdm.tqdm(r.iter_content(chunk_size=chunk_size),
+                for chunk in tqdm.tqdm(r.iter_content(chunk_size=1024),
                                        total=num_bars,
                                        unit='KB',
                                        desc=disp_filename,
                                        leave=True):
                     fp.write(chunk)
         else:
-            open(filename, 'wb').write(r.content)
+            with open(filename, 'wb') as f:
+                f.write(r.content)
     except KeyboardInterrupt as ki:
         if os.path.exists(filename):
             os.remove(filename)

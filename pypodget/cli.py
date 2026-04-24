@@ -33,7 +33,7 @@ def main():
                         action='store_true', default=False,
                         help='Silent operation')
     parser.add_argument('--version', '-v',
-                        action='version', version='%(prog)s 0.1.1')
+                        action='version', version='%(prog)s 0.1.2')
     args = parser.parse_args()
 
     verbose = not args.silent
@@ -58,6 +58,7 @@ def main():
         except Exception as err:
             print("Mandatory key missing")
             print(err)
+            continue
 
         if "filename" in config[pod]:
             filename_template = config[pod]["filename"]
